@@ -1,11 +1,32 @@
-<div align="center">
+# Campus Cakes 🎂
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Campus-exclusive premium artisan cakes, gifts, and smart kiosk pickups for college campuses.
 
-  <h1>Built with AI Studio</h2>
+## Tech Stack
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Motion
+- **Backend & APIs**: Node.js / Express, Gemini AI, Nodemailer / Resend
+- **Database & Auth**: Firebase Firestore & Firebase Auth
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Getting Started
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-</div>
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env` and fill in your keys:
+```bash
+cp .env.example .env
+```
+
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+### 4. Build for Production
+```bash
+npm run build
+npm start
+```

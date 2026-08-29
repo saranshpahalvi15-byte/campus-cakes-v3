@@ -1,0 +1,253 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE SECURITY PRIMITIVES ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "tanishapahal606@gmail.com" || 
+        request.auth.token.email == "tanishapahal606@gmal.com" ||
+        request.auth.token.email == "saransh1860@gmail.com"
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-.@]+$');
+    }
+
+    // Helper shortcuts
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- ENTITY SCHEMA VALIDATORS ---
+    function isValidUserProfile(data) {
+      return (!data.keys().contains('uid') || data.uid == request.auth.uid || isAdmin()) &&
+        (!data.keys().contains('email') || (data.email is string && data.email.size() <= 200));
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['id', 'userId', 'items', 'total', 'status']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.status is string && data.status.size() <= 50 &&
+        data.items is list && data.items.size() > 0 && data.items.size() <= 20 &&
+        data.total is number && data.total >= 0;
+    }
+
+    function isValidCampus(data) {
+      return data.keys().hasAll(['id', 'name', 'active']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.active is bool &&
+        (!data.keys().contains('location') || (data.location is string && data.location.size() <= 500));
+    }
+
+    function isValidCakeProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'category', 'image']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.price is number && data.price >= 0;
+    }
+
+    function isValidKioskProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'flavor', 'remainingStock', 'totalStock', 'image']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.price is number && data.price >= 0 &&
+        data.flavor is string && data.flavor.size() <= 100 &&
+        data.remainingStock is number && data.remainingStock >= 0 &&
+        data.totalStock is number && data.totalStock >= 0 &&
+        data.image is string && data.image.size() <= 2000000;
+    }
+
+    function isValidCakeImage(data) {
+      return data.keys().hasAll(['id', 'imageUrl', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.imageUrl is string && data.imageUrl.size() <= 2000000 &&
+        (!data.keys().contains('cakeId') || (data.cakeId is string && data.cakeId.size() <= 128)) &&
+        (!data.keys().contains('name') || (data.name is string && data.name.size() <= 200)) &&
+        (!data.keys().contains('uploadedBy') || (data.uploadedBy is string && data.uploadedBy.size() <= 128));
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['id', 'userName', 'userImage', 'rating', 'comment', 'cakeName', 'date']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userName is string && data.userName.size() <= 100 &&
+        data.userImage is string && data.userImage.size() <= 2000000 &&
+        data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+        data.comment is string && data.comment.size() <= 1000 &&
+        data.cakeName is string && data.cakeName.size() <= 200 &&
+        data.date is string && data.date.size() <= 100 &&
+        (!data.keys().contains('image') || (data.image is string && data.image.size() <= 2000000));
+    }
+
+    function isValidVendor(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'campusId']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.email is string && data.email.size() <= 200 &&
+        data.campusId is string && data.campusId.size() <= 128 &&
+        (!data.keys().contains('dateRegistered') || (data.dateRegistered is string && data.dateRegistered.size() <= 100));
+    }
+
+    function isValidGift(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'image']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 200 &&
+        data.price is number && data.price >= 0;
+    }
+
+    function isValidCertificate(data) {
+      return data.keys().hasAll(['certificateId', 'employeeName', 'designation', 'employeeId', 'joiningDate', 'relievingDate', 'issueDate']) &&
+        data.certificateId is string && data.certificateId.size() <= 128 &&
+        data.employeeName is string && data.employeeName.size() <= 200 &&
+        data.designation is string && data.designation.size() <= 200 &&
+        data.employeeId is string && data.employeeId.size() <= 128 &&
+        data.joiningDate is string && data.joiningDate.size() <= 100 &&
+        data.relievingDate is string && data.relievingDate.size() <= 100 &&
+        data.issueDate is string && data.issueDate.size() <= 100;
+    }
+
+
+    // --- MATCH BLOCKS ---
+
+    // 1. Users profiles collection
+    match /users/{userId} {
+      allow get: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      // Deny blanket reads; users can only list their own profile
+      allow list: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      
+      allow create: if (isAdmin() || (isSignedIn() && request.auth.uid == userId)) && isValidUserProfile(incoming());
+      allow update: if (isAdmin() || (isSignedIn() && request.auth.uid == userId)) && 
+                     isValidUserProfile(incoming()) && 
+                     (!incoming().keys().contains('uid') || !existing().keys().contains('uid') || incoming().uid == existing().uid);
+      allow delete: if isAdmin();
+    }
+
+    // 2. Orders database collection
+    match /orders/{orderId} {
+      allow get, list: if isSignedIn();
+      
+      allow create: if isAdmin() || (isSignedIn() && isValidId(orderId) && isValidOrder(incoming()) && incoming().userId == request.auth.uid);
+      allow update: if isSignedIn() && isValidOrder(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    // 3. Campuses data collection
+    match /campuses/{campusId} {
+      allow read: if true; // Public list for store discovery
+      allow create, update: if isAdmin() && isValidId(campusId) && isValidCampus(incoming());
+      allow delete: if isAdmin() && isValidId(campusId);
+    }
+
+    // 4. Standard/delivery products data collection
+    match /products/{productId} {
+      allow read: if true; // Public catalog
+      allow create, update: if (isAdmin() || isSignedIn()) && isValidId(productId) && isValidCakeProduct(incoming());
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    // 5. Instant Pickup Kiosk stock details
+    match /kiosk_products/{kioskProductId} {
+      allow read: if true; // Public kiosk inventory
+      allow create: if isAdmin() && isValidId(kioskProductId) && isValidKioskProduct(incoming());
+      allow delete: if isAdmin() && isValidId(kioskProductId);
+      allow update: if (isAdmin() && isValidId(kioskProductId) && isValidKioskProduct(incoming())) || (
+        // Allow signed-in user to decrement stock by exactly 1 on purchase
+        isSignedIn() &&
+        isValidId(kioskProductId) &&
+        isValidKioskProduct(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().name == existing().name &&
+        incoming().price == existing().price &&
+        incoming().flavor == existing().flavor &&
+        incoming().totalStock == existing().totalStock &&
+        incoming().image == existing().image &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['remainingStock']) &&
+        incoming().remainingStock == existing().remainingStock - 1 &&
+        incoming().remainingStock >= 0
+      ) || (
+        // Allow signed-in vendor to update stock/kiosk details for their campus products
+        isSignedIn() &&
+        request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/vendors/$(request.auth.token.email.lower())) &&
+        (
+          get(/databases/$(database)/documents/vendors/$(request.auth.token.email.lower())).data.campusId == 'all' ||
+          !existing().keys().contains('campusIds') ||
+          existing().campusIds == null ||
+          existing().campusIds.size() == 0 ||
+          get(/databases/$(database)/documents/vendors/$(request.auth.token.email.lower())).data.campusId in existing().campusIds
+        ) &&
+        isValidId(kioskProductId) &&
+        isValidKioskProduct(incoming())
+      );
+    }
+
+    // 6. Cake images collection
+    match /cake_images/{cakeImageId} {
+      allow read: if true; // Public pictures of cakes catalog/gallery
+      allow create: if isSignedIn() && isValidId(cakeImageId) && isValidCakeImage(incoming()) && incoming().uploadedBy == request.auth.uid;
+      allow update: if isAdmin() && isValidId(cakeImageId) && isValidCakeImage(incoming());
+      allow delete: if isAdmin() && isValidId(cakeImageId);
+    }
+
+    // 7. Coupons collection
+    match /coupons/{couponId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['usersUsed']));
+    }
+
+    // 8. Reviews collection
+    match /reviews/{reviewId} {
+      allow read: if true; // Public verified reviews
+      allow create: if isSignedIn() && isValidId(reviewId) && isValidReview(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    // 9. Employees collection
+    match /employees/{employeeId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(employeeId);
+      allow delete: if isAdmin();
+    }
+
+    // 10. Vendors collection
+    match /vendors/{vendorId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(vendorId) && isValidVendor(incoming());
+      allow delete: if isAdmin() && isValidId(vendorId);
+    }
+
+    // 11. Gifts collection
+    match /gifts/{giftId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(giftId) && isValidGift(incoming());
+      allow delete: if isAdmin() && isValidId(giftId);
+    }
+
+    // 12. Certificates collection
+    match /certificates/{certificateId} {
+      allow read: if true; // Public verification for /verify/{certificateId}
+      allow create, update: if (isAdmin() || isSignedIn()) && isValidId(certificateId) && isValidCertificate(incoming());
+      allow delete: if isAdmin() && isValidId(certificateId);
+    }
+  }
+}

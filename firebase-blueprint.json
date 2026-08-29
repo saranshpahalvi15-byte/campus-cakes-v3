@@ -1,0 +1,468 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User account details, address, hostel, reward points, saved celebrations, and wishlist.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique Firebase Auth identifier of the user."
+        },
+        "name": {
+          "type": "string",
+          "description": "User display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact number."
+        },
+        "address": {
+          "type": "string",
+          "description": "Delivery address or hostel details."
+        },
+        "campusId": {
+          "type": "string",
+          "description": "Associated campus ID."
+        },
+        "rewardPoints": {
+          "type": "number",
+          "description": "Loyalty program reward points balance."
+        },
+        "referralCode": {
+          "type": "string",
+          "description": "Personal referral code."
+        },
+        "savedCelebrations": {
+          "type": "array",
+          "description": "Saved occasions and birthdates of friends."
+        },
+        "wishlist": {
+          "type": "array",
+          "description": "List of favorite cake product IDs."
+        }
+      },
+      "required": [
+        "uid",
+        "email"
+      ]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Historical or active purchase transaction containing items, price totals, current status, and timestamps.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Order ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who placed this order."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email of the placer."
+        },
+        "items": {
+          "type": "array",
+          "description": "Line items representing cakes and specifications."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Basket item total price."
+        },
+        "deliveryCharges": {
+          "type": "number",
+          "description": "Shipping or service surcharge."
+        },
+        "discountApplied": {
+          "type": "number",
+          "description": "Monetary discounts subtracted."
+        },
+        "total": {
+          "type": "number",
+          "description": "Grand total paid or payable."
+        },
+        "paymentMode": {
+          "type": "string",
+          "description": "Chosen payment method."
+        },
+        "status": {
+          "type": "string",
+          "description": "Workflow phase of the order."
+        },
+        "campusId": {
+          "type": "string",
+          "description": "Destination campus ID."
+        },
+        "deliveryInstructions": {
+          "type": "string",
+          "description": "Delivery gate notes or instructions."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the order was placed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "items",
+        "total",
+        "status"
+      ]
+    },
+    "Campus": {
+      "title": "Campus",
+      "description": "Registered campus or institutional facility receiving services.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug identifying the campus."
+        },
+        "name": {
+          "type": "string",
+          "description": "Complete campus or university name."
+        },
+        "location": {
+          "type": "string",
+          "description": "Primary pick-up hubs or default quad coordinates."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Whether service is currently live on this campus."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "active"
+      ]
+    },
+    "CakeProduct": {
+      "title": "Cake Product",
+      "description": "The custom/delivery cake product design available for booking.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string"
+        },
+        "isEggless": {
+          "type": "boolean"
+        },
+        "isTrending": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "string"
+        },
+        "deliveryTime": {
+          "type": "string"
+        },
+        "weights": {
+          "type": "array"
+        },
+        "flavors": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "category",
+        "image"
+      ]
+    },
+    "KioskCakeProduct": {
+      "title": "Kiosk Cake Product",
+      "description": "Product pre-staged inside an instant-pickup self-serve smart kiosk.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "flavor": {
+          "type": "string"
+        },
+        "remainingStock": {
+          "type": "number"
+        },
+        "totalStock": {
+          "type": "number"
+        },
+        "image": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "flavor",
+        "remainingStock",
+        "totalStock",
+        "image"
+      ]
+    },
+    "CakeImage": {
+      "title": "Cake Image",
+      "description": "Data record of cake designs and photography assets.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Image database identifier."
+        },
+        "cakeId": {
+          "type": "string",
+          "description": "Associated cake product or order ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Label for the image."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Binary encoding or absolute internet link hosting the photograph."
+        },
+        "uploadedBy": {
+          "type": "string",
+          "description": "User UID who submitted this visual asset."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time of catalog asset submission."
+        }
+      },
+      "required": [
+        "id",
+        "imageUrl",
+        "createdAt"
+      ]
+    },
+    "Vendor": {
+      "title": "Vendor",
+      "description": "Registered vendors who can manage stock and receive orders for specific or all campuses.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique vendor identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Vendor name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Vendor registered email."
+        },
+        "campusId": {
+          "type": "string",
+          "description": "Associated campus ID ('all' or specific ID)."
+        },
+        "dateRegistered": {
+          "type": "string",
+          "description": "Registration date."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "campusId"
+      ]
+    },
+    "GiftItem": {
+      "title": "Gift Item",
+      "description": "Companion gifts or standalone gift gallery items.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "image": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "partnerGallery": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "image"
+      ]
+    },
+    "Certificate": {
+      "title": "Employee Certificate",
+      "description": "Official employee experience certificate issued by Campus Cakes.",
+      "type": "object",
+      "properties": {
+        "certificateId": {
+          "type": "string",
+          "description": "Unique certificate ID (e.g. CC-CERT-2026-000001)."
+        },
+        "employeeName": {
+          "type": "string",
+          "description": "Name of the certified employee."
+        },
+        "designation": {
+          "type": "string",
+          "description": "Role/Designation served."
+        },
+        "employeeId": {
+          "type": "string",
+          "description": "Employee ID (e.g. CC-EMP-0001)."
+        },
+        "joiningDate": {
+          "type": "string",
+          "description": "Start date of employment."
+        },
+        "relievingDate": {
+          "type": "string",
+          "description": "End date of employment."
+        },
+        "issueDate": {
+          "type": "string",
+          "description": "Date of issue."
+        },
+        "founderName": {
+          "type": "string",
+          "description": "Founder name."
+        },
+        "coFounderName": {
+          "type": "string",
+          "description": "Co-founder name."
+        },
+        "certificateUrl": {
+          "type": "string",
+          "description": "Generated certificate image or PDF URL."
+        },
+        "qrCodeUrl": {
+          "type": "string",
+          "description": "Generated verification QR code URL."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Admin UID or email who created the certificate."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of creation."
+        }
+      },
+      "required": [
+        "certificateId",
+        "employeeName",
+        "designation",
+        "employeeId",
+        "joiningDate",
+        "relievingDate",
+        "issueDate"
+      ]
+    }
+  },
+  "firestore": {
+    "certificates/{certificateId}": {
+      "schema": {
+        "$ref": "#/entities/Certificate"
+      },
+      "description": "Issued employee experience certificates."
+    },
+    "vendors/{vendorId}": {
+      "schema": {
+        "$ref": "#/entities/Vendor"
+      },
+      "description": "Registered vendors mapping emails and authorized campuses."
+    },
+    "users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Document root matching Firebase Auth UIDs containing profiling metadata."
+    },
+    "orders/{orderId}": {
+      "schema": {
+        "$ref": "#/entities/Order"
+      },
+      "description": "Orders collection detailing user purchases."
+    },
+    "campuses/{campusId}": {
+      "schema": {
+        "$ref": "#/entities/Campus"
+      },
+      "description": "Active locations receiving services definition catalog."
+    },
+    "products/{productId}": {
+      "schema": {
+        "$ref": "#/entities/CakeProduct"
+      },
+      "description": "Delivery catalog items database."
+    },
+    "kiosk_products/{kioskProductId}": {
+      "schema": {
+        "$ref": "#/entities/KioskCakeProduct"
+      },
+      "description": "Instant Kiosk items database."
+    },
+    "cake_images/{cakeImageId}": {
+      "schema": {
+        "$ref": "#/entities/CakeImage"
+      },
+      "description": "Data record of the pictures / artworks of active products or uploaded custom orders."
+    },
+    "gifts/{giftId}": {
+      "schema": {
+        "$ref": "#/entities/GiftItem"
+      },
+      "description": "Companion gifts gallery database."
+    }
+  }
+}

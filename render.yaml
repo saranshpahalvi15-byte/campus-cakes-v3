@@ -1,0 +1,17 @@
+services:
+  # Option 1: Render Static Site (Highly Recommended - Free, Global CDN, Automatic, No sleep)
+  - type: static
+    name: campus-cakes-static
+    buildCommand: npm run build
+    publishDir: dist
+    routes:
+      - src: /*
+        dest: /index.html
+
+  # Option 2: Render Node.js Web Service (Enables running backend if needed)
+  - type: web
+    name: campus-cakes-node
+    env: node
+    buildCommand: npm run build
+    startCommand: node server.js
+

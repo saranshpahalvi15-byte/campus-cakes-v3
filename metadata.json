@@ -1,0 +1,8 @@
+{
+  "name": "CampusCakes",
+  "description": "Campus-exclusive premium artisan cakes, gifts, and smart kiosk pickups.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
