@@ -221,7 +221,7 @@ COMMUNICATION STYLE:
       }
 
       const brandName = "Campus Cakes";
-      const resendApiKey = process.env.RESEND_API_KEY || "re_QFtCd6AR_2heqUY1zZVkAbUMJ51ZTvjcQ";
+      const resendApiKey = process.env.RESEND_API_KEY;
       const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
       const itemsHtml = (items || [])
